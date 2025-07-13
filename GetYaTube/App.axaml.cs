@@ -1,11 +1,16 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
+using GetYaTube.Services;
 using GetYaTube.ViewModels;
 using GetYaTube.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Splat;
+using Splat.Microsoft.Extensions.DependencyInjection;
 
 namespace GetYaTube;
 
@@ -20,20 +25,12 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
-            DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainViewModel()
-            };
+            // This now works because the Locator was correctly set up in Program.cs
+            desktop.MainWindow = Locator.Current.GetService<MainWindow>();
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
-            singleViewPlatform.MainView = new MainView
-            {
-                DataContext = new MainViewModel()
-            };
+            singleViewPlatform.MainView = Locator.Current.GetService<MainView>();
         }
 
         base.OnFrameworkInitializationCompleted();
