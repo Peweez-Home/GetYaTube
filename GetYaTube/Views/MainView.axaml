@@ -2,15 +2,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:GetYaTube.ViewModels"
+             xmlns:vm="using:GetYaTube.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="GetYaTube.Views.MainView"
              x:DataType="vm:MainViewModel">
-  <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
-         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-    <vm:MainViewModel />
-  </Design.DataContext>
+    <Design.DataContext>
+        <!-- This allows the previewer to show data -->
+        <vm:MainViewModel/>
+    </Design.DataContext>
 
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+        <!-- Input Section -->
+        <StackPanel Grid.Row="0" Spacing="10">
+            <TextBlock Text="YouTube URL:" FontWeight="Bold"/>
+            <TextBox Text="{Binding Url, Mode=TwoWay}" Watermark="Enter a YouTube video or playlist URL"/>
+            <!-- TODO: Add controls for format selection (MP3/FLAC) -->
+            <Button Content="Process URL"
+                    Command="{Binding ProcessUrlCommand}"
+                    HorizontalAlignment="Stretch"
+                    Classes="accent"/>
+        </StackPanel>
+
+        <!-- Download Queue Section -->
+        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Margin="0,15">
+            <DataGrid ItemsSource="{Binding DownloadQueue}" IsReadOnly="True" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="*"/>
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="150"/>
+                    <DataGridTemplateColumn Header="Progress" Width="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ProgressBar Value="{Binding Progress}" 
+                                             Maximum="1.0"
+                                             IsIndeterminate="{Binding IsIndeterminate}" /> <!-- Add this line -->
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Status Bar Section -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
+            <ProgressBar Grid.Column="1" Width="100" IsIndeterminate="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+        </Grid>
+    </Grid>
 </UserControl>
